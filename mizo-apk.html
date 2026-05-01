@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MIZO APK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1A73E8;
+    --primary-dark: #1557B0;
+    --primary-light: #E8F0FE;
+    --surface: #FFFFFF;
+    --surface-2: #F8F9FA;
+    --surface-3: #F1F3F4;
+    --border: #E8EAED;
+    --text-primary: #202124;
+    --text-secondary: #5F6368;
+    --text-tertiary: #9AA0A6;
+    --accent-green: #34A853;
+    --accent-red: #EA4335;
+    --accent-yellow: #FBBC04;
+    --shadow-sm: 0 1px 3px rgba(60,64,67,0.10), 0 1px 2px rgba(60,64,67,0.06);
+    --shadow-md: 0 4px 12px rgba(60,64,67,0.12), 0 2px 6px rgba(60,64,67,0.08);
+    --shadow-lg: 0 8px 24px rgba(60,64,67,0.15), 0 4px 12px rgba(60,64,67,0.10);
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-xl: 32px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; background: var(--surface-2); }
+  body { font-family: 'DM Sans', sans-serif; color: var(--text-primary); }
+
+  /* ===== PHONE SHELL ===== */
+  #app {
+    max-width: 420px;
+    height: 100dvh;
+    margin: 0 auto;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* ===== SCREENS ===== */
+  .screen { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+  .screen.active { display: flex; }
+
+  /* ===== AUTH SCREEN ===== */
+  #auth-screen {
+    background: linear-gradient(160deg, #EEF3FF 0%, #FFFFFF 50%, #F0FFF4 100%);
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+  }
+  .auth-logo {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .auth-logo .logo-icon {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, var(--primary) 0%, #4285F4 100%);
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 14px;
+    box-shadow: 0 8px 24px rgba(26,115,232,0.35);
+  }
+  .auth-logo .logo-icon svg { width: 40px; height: 40px; fill: white; }
+  .auth-logo h1 { font-size: 26px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.5px; }
+  .auth-logo p { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+
+  .auth-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: 28px 24px;
+    width: 100%;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border);
+  }
+  .auth-tabs {
+    display: flex;
+    background: var(--surface-3);
+    border-radius: var(--radius-md);
+    padding: 4px;
+    margin-bottom: 24px;
+  }
+  .auth-tab {
+    flex: 1; padding: 10px; text-align: center;
+    font-size: 14px; font-weight: 600;
+    border-radius: var(--radius-sm);
+    cursor: pointer; transition: all 0.2s;
+    color: var(--text-secondary);
+    border: none; background: transparent;
+  }
+  .auth-tab.active {
+    background: white;
+    color: var(--primary);
+    box-shadow: var(--shadow-sm);
+  }
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; display: block; letter-spacing: 0.3px; text-transform: uppercase; }
+  .form-input {
+    width: 100%; padding: 13px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 15px; font-family: inherit;
+    color: var(--text-primary);
+    background: var(--surface-2);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+  .form-input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(26,115,232,0.12); }
+  .btn-primary {
+    width: 100%; padding: 14px;
+    background: var(--primary);
+    color: white; border: none;
+    border-radius: var(--radius-md);
+    font-size: 15px; font-weight: 600;
+    font-family: inherit; cursor: pointer;
+    transition: all 0.2s; letter-spacing: 0.2px;
+    margin-top: 6px;
+  }
+  .btn-primary:hover { background: var(--primary-dark); box-shadow: 0 4px 14px rgba(26,115,232,0.4); }
+  .btn-primary:active { transform: scale(0.98); }
+  .auth-error {
+    background: #FEE8E6; color: var(--accent-red);
+    border-radius: var(--radius-sm); padding: 10px 14px;
+    font-size: 13px; font-weight: 500;
+    margin-bottom: 14px; display: none;
+  }
+
+  /* ===== TOP BAR ===== */
+  .topbar {
+    padding: 16px 16px 12px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .topbar-row1 {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .topbar-logo { display: flex; align-items: center; gap: 9px; }
+  .topbar-logo .mini-icon {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, var(--primary) 0%, #4285F4 100%);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .topbar-logo .mini-icon svg { width: 18px; height: 18px; fill: white; }
+  .topbar-logo span { font-size: 18px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.4px; }
+  .topbar-actions { display: flex; gap: 8px; }
+  .icon-btn {
+    width: 38px; height: 38px;
+    border: none; background: var(--surface-2);
+    border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .icon-btn:hover { background: var(--surface-3); }
+  .icon-btn svg { width: 18px; height: 18px; fill: var(--text-secondary); }
+
+  .search-bar {
+    display: flex; align-items: center;
+    background: var(--surface-2);
+    border: 1.5px solid var(--border);
+    border-radius: 50px;
+    padding: 9px 16px;
+    gap: 10px;
+    transition: all 0.2s;
+  }
+  .search-bar:focus-within { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(26,115,232,0.10); }
+  .search-bar svg { width: 16px; height: 16px; fill: var(--text-tertiary); flex-shrink: 0; }
+  .search-bar input {
+    border: none; background: transparent; font-size: 14px;
+    font-family: inherit; color: var(--text-primary); flex: 1; outline: none;
+  }
+  .search-bar input::placeholder { color: var(--text-tertiary); }
+
+  /* ===== NOTICE BOARD ===== */
+  .notice-strip {
+    background: linear-gradient(90deg, #E8F0FE, #EEF7FF);
+    border-bottom: 1px solid #C5D8FC;
+    padding: 9px 16px;
+    display: flex; align-items: center; gap: 10px;
+    flex-shrink: 0;
+  }
+  .notice-badge {
+    background: var(--primary); color: white;
+    font-size: 10px; font-weight: 700;
+    padding: 3px 8px; border-radius: 50px;
+    letter-spacing: 0.5px; text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .notice-scroll { overflow: hidden; flex: 1; }
+  .notice-text { font-size: 12.5px; color: var(--primary-dark); font-weight: 500; white-space: nowrap; animation: marquee 20s linear infinite; display: inline-block; }
+  @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+
+  /* ===== MAIN CONTENT ===== */
+  .main-scroll {
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 80px;
+  }
+  .main-scroll::-webkit-scrollbar { display: none; }
+
+  /* ===== SECTION ===== */
+  .section { padding: 18px 16px 4px; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .section-title { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+  .section-link { font-size: 13px; font-weight: 600; color: var(--primary); cursor: pointer; }
+
+  /* ===== APP GRID ===== */
+  .app-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .app-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 10px;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: center;
+    position: relative;
+  }
+  .app-card:active { transform: scale(0.96); background: var(--surface-2); }
+  .app-icon {
+    width: 58px; height: 58px;
+    border-radius: 14px;
+    object-fit: cover;
+    margin: 0 auto 8px;
+    display: block;
+    background: var(--surface-3);
+  }
+  .app-icon-placeholder {
+    width: 58px; height: 58px;
+    border-radius: 14px;
+    margin: 0 auto 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    background: linear-gradient(135deg, var(--primary-light), #D8EBFF);
+  }
+  .app-name { font-size: 12px; font-weight: 600; color: var(--text-primary); line-height: 1.3; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .app-category { font-size: 10.5px; color: var(--text-tertiary); font-weight: 500; }
+  .app-rating { font-size: 10.5px; color: var(--text-secondary); font-weight: 600; margin-top: 3px; display: flex; align-items: center; justify-content: center; gap: 2px; }
+  .star { color: var(--accent-yellow); font-size: 9px; }
+
+  /* ===== FEATURED BANNER ===== */
+  .featured-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 0 16px 4px; scroll-snap-type: x mandatory; }
+  .featured-scroll::-webkit-scrollbar { display: none; }
+  .featured-card {
+    min-width: 200px; background: linear-gradient(135deg, #1A73E8, #0D47A1);
+    border-radius: var(--radius-lg); padding: 16px;
+    cursor: pointer; scroll-snap-align: start;
+    position: relative; overflow: hidden;
+    flex-shrink: 0;
+  }
+  .featured-card::before {
+    content: ''; position: absolute;
+    top: -20px; right: -20px;
+    width: 100px; height: 100px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+  }
+  .featured-card h3 { font-size: 15px; font-weight: 700; color: white; margin-bottom: 4px; }
+  .featured-card p { font-size: 12px; color: rgba(255,255,255,0.75); }
+  .featured-badge { display: inline-block; background: rgba(255,255,255,0.2); color: white; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 50px; margin-top: 10px; }
+
+  /* ===== LOADING SKELETON ===== */
+  .skeleton {
+    background: linear-gradient(90deg, var(--surface-3) 25%, var(--border) 50%, var(--surface-3) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 8px;
+  }
+  @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+  .skeleton-card { border-radius: var(--radius-md); height: 110px; }
+
+  /* ===== APP DETAIL OVERLAY ===== */
+  #detail-overlay {
+    position: absolute; inset: 0; z-index: 100;
+    background: white;
+    display: none; flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  #detail-overlay.open { display: flex; transform: translateY(0); }
+  .detail-topbar {
+    padding: 16px; display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .back-btn {
+    width: 36px; height: 36px; border: none;
+    background: var(--surface-2); border-radius: 50%;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .back-btn svg { width: 18px; height: 18px; fill: var(--text-secondary); }
+  .detail-title { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+  .detail-scroll { flex: 1; overflow-y: auto; padding: 0 16px 100px; }
+  .detail-scroll::-webkit-scrollbar { display: none; }
+
+  .detail-header { padding: 20px 0 16px; display: flex; gap: 16px; align-items: flex-start; }
+  .detail-icon {
+    width: 80px; height: 80px; border-radius: 20px;
+    object-fit: cover; flex-shrink: 0; background: var(--surface-3);
+  }
+  .detail-icon-placeholder {
+    width: 80px; height: 80px; border-radius: 20px;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    background: linear-gradient(135deg, var(--primary-light), #D8EBFF);
+  }
+  .detail-info h2 { font-size: 18px; font-weight: 700; color: var(--text-primary); line-height: 1.3; margin-bottom: 5px; }
+  .detail-info .detail-dev { font-size: 13px; color: var(--primary); font-weight: 600; }
+  .detail-info .detail-cat { font-size: 12px; color: var(--text-tertiary); margin-top: 4px; font-weight: 500; }
+
+  .stats-row { display: flex; gap: 1px; background: var(--border); border-radius: var(--radius-md); overflow: hidden; margin-bottom: 16px; }
+  .stat-item { flex: 1; background: white; padding: 12px 8px; text-align: center; }
+  .stat-value { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+  .stat-label { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+
+  .btn-like {
+    width: 100%; padding: 13px;
+    background: white; color: var(--primary);
+    border: 2px solid var(--primary);
+    border-radius: var(--radius-md);
+    font-size: 14px; font-weight: 700;
+    font-family: inherit; cursor: pointer;
+    transition: all 0.2s; margin-bottom: 10px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-like.liked { background: var(--primary-light); }
+  .btn-like svg { width: 18px; height: 18px; }
+  .btn-download {
+    width: 100%; padding: 14px;
+    background: var(--accent-green); color: white;
+    border: none; border-radius: var(--radius-md);
+    font-size: 15px; font-weight: 700;
+    font-family: inherit; cursor: pointer;
+    transition: all 0.2s; text-decoration: none;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-bottom: 20px;
+  }
+  .btn-download:hover { background: #2D9246; }
+  .btn-download svg { width: 18px; height: 18px; fill: white; }
+
+  .screenshots-section { margin-bottom: 20px; }
+  .screenshots-section h3 { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; }
+  .screenshots-row { display: flex; gap: 10px; overflow-x: auto; }
+  .screenshots-row::-webkit-scrollbar { display: none; }
+  .screenshot-img {
+    min-width: 130px; height: 220px;
+    border-radius: var(--radius-md);
+    object-fit: cover;
+    border: 1px solid var(--border);
+    flex-shrink: 0; background: var(--surface-3);
+  }
+
+  .detail-desc { font-size: 14px; line-height: 1.7; color: var(--text-secondary); margin-bottom: 20px; }
+
+  /* ===== BOTTOM NAV ===== */
+  .bottom-nav {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: white;
+    border-top: 1px solid var(--border);
+    display: flex; padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+    z-index: 50;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; gap: 3px; padding: 6px 4px;
+    cursor: pointer; border: none; background: transparent;
+    transition: all 0.2s; border-radius: var(--radius-sm);
+  }
+  .nav-item svg { width: 22px; height: 22px; fill: var(--text-tertiary); transition: fill 0.2s; }
+  .nav-item span { font-size: 10px; font-weight: 600; color: var(--text-tertiary); transition: color 0.2s; }
+  .nav-item.active svg { fill: var(--primary); }
+  .nav-item.active span { color: var(--primary); }
+  .nav-item .nav-dot { display: none; width: 4px; height: 4px; background: var(--primary); border-radius: 50%; }
+  .nav-item.active .nav-dot { display: block; }
+
+  /* ===== SEARCH SCREEN ===== */
+  #search-screen { background: white; }
+  .search-screen-top { padding: 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .search-screen-top h2 { font-size: 20px; font-weight: 700; margin-bottom: 14px; }
+  .search-results { flex: 1; overflow-y: auto; padding: 12px 16px 80px; }
+  .search-results::-webkit-scrollbar { display: none; }
+  .result-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .result-item:last-child { border-bottom: none; }
+  .result-icon {
+    width: 50px; height: 50px; border-radius: 12px;
+    object-fit: cover; flex-shrink: 0; background: var(--surface-3);
+  }
+  .result-icon-placeholder {
+    width: 50px; height: 50px; border-radius: 12px;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    background: linear-gradient(135deg, var(--primary-light), #D8EBFF);
+  }
+  .result-info { flex: 1; min-width: 0; }
+  .result-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .result-cat { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+
+  .empty-state { text-align: center; padding: 60px 20px; }
+  .empty-state svg { width: 60px; height: 60px; fill: var(--border); margin-bottom: 16px; }
+  .empty-state h3 { font-size: 16px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+  .empty-state p { font-size: 13px; color: var(--text-tertiary); }
+
+  /* ===== PROFILE SCREEN ===== */
+  #profile-screen { background: var(--surface-2); }
+  .profile-header {
+    background: white; padding: 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 16px;
+    flex-shrink: 0;
+  }
+  .profile-avatar {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, var(--primary), #4285F4);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; font-weight: 700; color: white;
+    flex-shrink: 0;
+  }
+  .profile-info h3 { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+  .profile-info p { font-size: 12.5px; color: var(--text-secondary); margin-top: 3px; }
+  .profile-scroll { flex: 1; overflow-y: auto; padding: 16px 16px 80px; }
+  .profile-scroll::-webkit-scrollbar { display: none; }
+
+  .profile-card {
+    background: white; border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    overflow: hidden; margin-bottom: 12px;
+  }
+  .profile-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 15px 16px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background 0.15s;
+    text-decoration: none;
+  }
+  .profile-item:last-child { border-bottom: none; }
+  .profile-item:hover { background: var(--surface-2); }
+  .profile-item-icon {
+    width: 38px; height: 38px;
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .profile-item-icon svg { width: 18px; height: 18px; }
+  .profile-item-text { flex: 1; }
+  .profile-item-label { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .profile-item-sub { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+  .profile-item-arrow svg { width: 16px; height: 16px; fill: var(--text-tertiary); }
+
+  .btn-logout {
+    width: 100%; padding: 14px;
+    background: #FEE8E6; color: var(--accent-red);
+    border: none; border-radius: var(--radius-md);
+    font-size: 14px; font-weight: 700;
+    font-family: inherit; cursor: pointer;
+    transition: background 0.2s; margin-top: 4px;
+  }
+  .btn-logout:hover { background: #FDD8D5; }
+
+  /* ===== FLOATING WA BUTTON ===== */
+  .fab-wa {
+    position: fixed; /* Changed from absolute to allow proper positioning in overlay */
+    bottom: 90px; right: 16px; z-index: 200;
+    width: 48px; height: 48px;
+    background: #25D366;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 14px rgba(37,211,102,0.5);
+    cursor: pointer; transition: all 0.2s;
+    text-decoration: none;
+  }
+  .fab-wa:hover { transform: scale(1.08); }
+  .fab-wa svg { width: 26px; height: 26px; fill: white; }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--text-primary); color: white;
+    padding: 10px 18px; border-radius: 50px;
+    font-size: 13px; font-weight: 500;
+    z-index: 999; white-space: nowrap;
+    opacity: 0; transition: all 0.3s; pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ===== LOADER ===== */
+  .loader-overlay {
+    position: absolute; inset: 0; z-index: 300;
+    background: white; display: flex;
+    align-items: center; justify-content: center;
+    flex-direction: column; gap: 16px;
+  }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loader-text { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Loader -->
+  <div class="loader-overlay" id="loader">
+    <div style="width:56px;height:56px;background:linear-gradient(135deg,#1A73E8,#4285F4);border-radius:16px;display:flex;align-items:center;justify-content:center;">
+      <svg viewBox="0 0 24 24" style="width:30px;height:30px;fill:white"><path d="M5 3l3.057-3 11.943 12-11.943 12-3.057-3 9-9z"/></svg>
+    </div>
+    <div class="spinner"></div>
+    <span class="loader-text">Loading MIZO APK...</span>
+  </div>
+
+  <!-- AUTH SCREEN -->
+  <div class="screen" id="auth-screen">
+    <div class="auth-logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M5 3l3.057-3 11.943 12-11.943 12-3.057-3 9-9z"/></svg>
+      </div>
+      <h1>MIZO APK</h1>
+      <p>Your trusted app marketplace</p>
+    </div>
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
+        <button class="auth-tab" onclick="switchAuthTab('signup')">Create Account</button>
+      </div>
+      <div id="auth-error" class="auth-error"></div>
+      <div id="login-form">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input class="form-input" type="email" id="login-email" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" type="password" id="login-pass" placeholder="Enter your password">
+        </div>
+        <button class="btn-primary" onclick="doLogin()">Sign In</button>
+      </div>
+      <div id="signup-form" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input class="form-input" type="email" id="signup-email" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" type="password" id="signup-pass" placeholder="Min. 6 characters">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <input class="form-input" type="password" id="signup-pass2" placeholder="Re-enter password">
+        </div>
+        <button class="btn-primary" onclick="doSignup()">Create Account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOME SCREEN -->
+  <div class="screen" id="home-screen">
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="topbar-row1">
+        <div class="topbar-logo">
+          <div class="mini-icon">
+            <svg viewBox="0 0 24 24"><path d="M5 3l3.057-3 11.943 12-11.943 12-3.057-3 9-9z"/></svg>
+          </div>
+          <span>MIZO APK</span>
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-btn" onclick="showScreen('profile-screen')">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input type="text" id="home-search" placeholder="Search apps..." oninput="filterHomeApps(this.value)">
+      </div>
+    </div>
+
+    <!-- Notice -->
+    <div class="notice-strip" id="notice-strip" style="display:none">
+      <span class="notice-badge">Notice</span>
+      <div class="notice-scroll"><span class="notice-text" id="notice-text"></span></div>
+    </div>
+
+    <!-- Scrollable Content -->
+    <div class="main-scroll" id="main-scroll">
+      <!-- Featured -->
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title">Featured</span>
+        </div>
+        <div class="featured-scroll" id="featured-scroll">
+          <div class="featured-card" onclick="openTelegram()">
+            <h3>Join MIZO Channel</h3>
+            <p>Get latest updates & new apps</p>
+            <span class="featured-badge">Telegram</span>
+          </div>
+          <div class="featured-card" style="background:linear-gradient(135deg,#34A853,#0B7733);" onclick="openWhatsApp()">
+            <h3>Support &amp; Help</h3>
+            <p>Chat with us on WhatsApp</p>
+            <span class="featured-badge">WhatsApp</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Apps Grid -->
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title">All Apps</span>
+          <span class="section-link" id="app-count"></span>
+        </div>
+        <div class="app-grid" id="app-grid">
+          <!-- Skeletons -->
+          <div class="skeleton skeleton-card"></div>
+          <div class="skeleton skeleton-card"></div>
+          <div class="skeleton skeleton-card"></div>
+          <div class="skeleton skeleton-card"></div>
+          <div class="skeleton skeleton-card"></div>
+          <div class="skeleton skeleton-card"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+      <button class="nav-item active" onclick="navTo('home')">
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <div class="nav-dot"></div>
+        <span>Home</span>
+      </button>
+      <button class="nav-item" onclick="navTo('search')">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <div class="nav-dot"></div>
+        <span>Search</span>
+      </button>
+      <button class="nav-item" onclick="navTo('profile')">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+        <div class="nav-dot"></div>
+        <span>Profile</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- SEARCH SCREEN -->
+  <div class="screen" id="search-screen">
+    <div class="search-screen-top">
+      <h2>Search Apps</h2>
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input type="text" id="search-input" placeholder="Type to search..." oninput="doSearch(this.value)">
+      </div>
+    </div>
+    <div class="search-results" id="search-results">
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5z"/></svg>
+        <h3>Find your next app</h3>
+        <p>Type a name to search all apps</p>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="navTo('home')">
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <div class="nav-dot"></div>
+        <span>Home</span>
+      </button>
+      <button class="nav-item active" onclick="navTo('search')">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <div class="nav-dot"></div>
+        <span>Search</span>
+      </button>
+      <button class="nav-item" onclick="navTo('profile')">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+        <div class="nav-dot"></div>
+        <span>Profile</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- PROFILE SCREEN -->
+  <div class="screen" id="profile-screen">
+    <div class="profile-header">
+      <div class="profile-avatar" id="profile-avatar">U</div>
+      <div class="profile-info">
+        <h3 id="profile-name">User</h3>
+        <p id="profile-email">Loading...</p>
+      </div>
+    </div>
+    <div class="profile-scroll">
+      <div class="profile-card">
+        <a class="profile-item" href="https://t.me/mizowebs" target="_blank">
+          <div class="profile-item-icon" style="background:#E8F5FD;">
+            <svg viewBox="0 0 24 24" style="fill:#229ED9;"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.83.941z"/></svg>
+          </div>
+          <div class="profile-item-text">
+            <div class="profile-item-label">Join Telegram Channel</div>
+            <div class="profile-item-sub">t.me/mizowebs — Updates &amp; News</div>
+          </div>
+          <div class="profile-item-arrow"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+        </a>
+        <a class="profile-item" href="https://wa.me/918798854711" target="_blank">
+          <div class="profile-item-icon" style="background:#E8F8EE;">
+            <svg viewBox="0 0 24 24" style="fill:#25D366;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          </div>
+          <div class="profile-item-text">
+            <div class="profile-item-label">WhatsApp Support</div>
+            <div class="profile-item-sub">+91 87988 54711</div>
+          </div>
+          <div class="profile-item-arrow"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+        </a>
+      </div>
+
+      <div class="profile-card">
+        <div class="profile-item" style="cursor:default;">
+          <div class="profile-item-icon" style="background:#FEF7E0;">
+            <svg viewBox="0 0 24 24" style="fill:#FBBC04;"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 4l5 2.18V11c0 3.5-2.33 6.79-5 7.93-2.67-1.14-5-4.43-5-7.93V7.18L12 5z"/></svg>
+          </div>
+          <div class="profile-item-text">
+            <div class="profile-item-label">App Version</div>
+            <div class="profile-item-sub">MIZO APK v2.0 — Stable</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="navTo('home')">
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <div class="nav-dot"></div>
+        <span>Home</span>
+      </button>
+      <button class="nav-item" onclick="navTo('search')">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <div class="nav-dot"></div>
+        <span>Search</span>
+      </button>
+      <button class="nav-item active" onclick="navTo('profile')">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+        <div class="nav-dot"></div>
+        <span>Profile</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- APP DETAIL OVERLAY -->
+  <div id="detail-overlay">
+    <div class="detail-topbar">
+      <button class="back-btn" onclick="closeDetail()">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      </button>
+      <span class="detail-title">App Details</span>
+    </div>
+    <div class="detail-scroll" id="detail-scroll">
+      <!-- Injected dynamically -->
+    </div>
+  </div>
+
+  <!-- WhatsApp FAB -->
+  <a class="fab-wa" href="https://wa.me/918798854711" target="_blank" id="fab-wa" style="display:none;">
+    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+</div>
+
+<!-- Firebase SDKs -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getDatabase, ref, onValue, runTransaction, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD-_zqy8hpUb6nJ5y_k5sXTF2zzSdvZN6A",
+  authDomain: "mizoapk-3b000.firebaseapp.com",
+  projectId: "mizoapk-3b000",
+  storageBucket: "mizoapk-3b000.firebasestorage.app",
+  messagingSenderId: "844790637879",
+  appId: "1:844790637879:web:57f238496915155fb826b2"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+let allApps = {};
+let currentUser = null;
+let likedApps = new Set();
+
+// ===== AUTH STATE =====
+onAuthStateChanged(auth, (user) => {
+  document.getElementById('loader').style.display = 'none';
+  if (user) {
+    currentUser = user;
+    document.getElementById('profile-email').textContent = user.email;
+    document.getElementById('profile-name').textContent = user.email.split('@')[0];
+    document.getElementById('profile-avatar').textContent = user.email[0].toUpperCase();
+    document.getElementById('fab-wa').style.display = 'flex';
+    showScreen('home-screen');
+    loadApps();
+    loadNotice();
+    loadLikedApps(user.uid);
+  } else {
+    currentUser = null;
+    document.getElementById('fab-wa').style.display = 'none';
+    showScreen('auth-screen');
+  }
+});
+
+// ===== AUTH FUNCTIONS =====
+window.switchAuthTab = (tab) => {
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='signup')));
+  document.getElementById('login-form').style.display = tab === 'login' ? '' : 'none';
+  document.getElementById('signup-form').style.display = tab === 'signup' ? '' : 'none';
+  document.getElementById('auth-error').style.display = 'none';
+};
+
+window.doLogin = async () => {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if (!email || !pass) { showAuthError('Please fill in all fields.'); return; }
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    showAuthError(getFriendlyError(e.code));
+  }
+};
+
+window.doSignup = async () => {
+  const email = document.getElementById('signup-email').value.trim();
+  const pass = document.getElementById('signup-pass').value;
+  const pass2 = document.getElementById('signup-pass2').value;
+  if (!email || !pass) { showAuthError('Please fill in all fields.'); return; }
+  if (pass !== pass2) { showAuthError('Passwords do not match.'); return; }
+  if (pass.length < 6) { showAuthError('Password must be at least 6 characters.'); return; }
+  try {
+    await createUserWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    showAuthError(getFriendlyError(e.code));
+  }
+};
+
+window.doLogout = async () => {
+  await signOut(auth);
+  navTo('home');
+};
+
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+function getFriendlyError(code) {
+  const map = {
+    'auth/user-not-found': 'No account found with this email.',
+    'auth/wrong-password': 'Incorrect password.',
+    'auth/email-already-in-use': 'This email is already registered.',
+    'auth/invalid-email': 'Please enter a valid email address.',
+    'auth/too-many-requests': 'Too many attempts. Please try again later.',
+    'auth/invalid-credential': 'Invalid email or password.',
+  };
+  return map[code] || 'Something went wrong. Please try again.';
+}
+
+// ===== LOAD APPS =====
+function loadApps() {
+  const appsRef = ref(db, 'apps');
+  onValue(appsRef, (snapshot) => {
+    allApps = snapshot.val() || {};
+    renderAppGrid(Object.entries(allApps));
+    const count = Object.keys(allApps).length;
+    document.getElementById('app-count').textContent = count > 0 ? `${count} Apps` : '';
+  });
+}
+
+function loadNotice() {
+  const noticeRef = ref(db, 'notice');
+  onValue(noticeRef, (snapshot) => {
+    const notice = snapshot.val();
+    const strip = document.getElementById('notice-strip');
+    const text = document.getElementById('notice-text');
+    if (notice && (typeof notice === 'string' ? notice.trim() : notice.text)) {
+      const msg = typeof notice === 'string' ? notice : notice.text;
+      text.textContent = msg;
+      strip.style.display = 'flex';
+    } else {
+      strip.style.display = 'none';
+    }
+  });
+}
+
+function loadLikedApps(uid) {
+  const likedRef = ref(db, `userLikes/${uid}`);
+  onValue(likedRef, (snapshot) => {
+    const data = snapshot.val() || {};
+    likedApps = new Set(Object.keys(data).filter(k => data[k]));
+  });
+}
+
+// ===== RENDER =====
+function renderAppGrid(entries) {
+  const grid = document.getElementById('app-grid');
+  if (!entries.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px 0;color:var(--text-tertiary);font-size:13px;">No apps available yet.</div>`;
+    return;
+  }
+  grid.innerHTML = entries.map(([id, app]) => `
+    <div class="app-card" onclick="openDetail('${id}')">
+      ${app.icon ? `<img class="app-icon" src="${app.icon}" alt="${app.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="app-icon-placeholder" style="display:none;">${app.name ? app.name[0] : 'A'}</div>` :
+      `<div class="app-icon-placeholder">${app.name ? app.name[0] : 'A'}</div>`}
+      <div class="app-name">${app.name || 'Unnamed'}</div>
+      <div class="app-category">${app.category || 'App'}</div>
+      ${app.rating ? `<div class="app-rating"><span class="star">&#9733;</span>${app.rating}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function renderSearchResults(query) {
+  const container = document.getElementById('search-results');
+  if (!query.trim()) {
+    container.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><h3>Find your next app</h3><p>Type a name to search all apps</p></div>`;
+    return;
+  }
+  const q = query.toLowerCase();
+  const results = Object.entries(allApps).filter(([, a]) => (a.name||'').toLowerCase().includes(q) || (a.category||'').toLowerCase().includes(q));
+  if (!results.length) {
+    container.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><h3>No results found</h3><p>Try a different search term</p></div>`;
+    return;
+  }
+  container.innerHTML = results.map(([id, app]) => `
+    <div class="result-item" onclick="openDetail('${id}')">
+      ${app.icon ? `<img class="result-icon" src="${app.icon}" alt="${app.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="result-icon-placeholder" style="display:none;">${app.name?app.name[0]:'A'}</div>` :
+      `<div class="result-icon-placeholder">${app.name?app.name[0]:'A'}</div>`}
+      <div class="result-info">
+        <div class="result-name">${app.name || 'Unnamed'}</div>
+        <div class="result-cat">${app.category || 'App'}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== APP DETAIL =====
+window.openDetail = async (id) => {
+  if (!currentUser) { showToast('Please sign in to view app details.'); return; }
+  const app = allApps[id];
+  if (!app) return;
+
+  // Increment views
+  const viewsRef = ref(db, `apps/${id}/views`);
+  runTransaction(viewsRef, (current) => (current || 0) + 1);
+
+  // Listen to real-time stats
+  const statsRef = ref(db, `apps/${id}`);
+  onValue(statsRef, (snap) => {
+    const data = snap.val() || {};
+    const vEl = document.getElementById('detail-views');
+    const lEl = document.getElementById('detail-likes');
+    if (vEl) vEl.textContent = formatNum(data.views || 0);
+    if (lEl) lEl.textContent = formatNum(data.likes || 0);
+  }, { onlyOnce: false });
+
+  const isLiked = likedApps.has(id);
+  const screenshots = [app.screenshot1, app.screenshot2, app.screenshot3].filter(Boolean);
+
+  document.getElementById('detail-scroll').innerHTML = `
+    <div class="detail-header">
+      ${app.icon ? `<img class="detail-icon" src="${app.icon}" alt="${app.name}" onerror="this.outerHTML='<div class=detail-icon-placeholder>${app.name?app.name[0]:'A'}</div>'>` :
+      `<div class="detail-icon-placeholder">${app.name?app.name[0]:'A'}</div>`}
+      <div class="detail-info">
+        <h2>${app.name || 'App'}</h2>
+        <div class="detail-dev">${app.developer || 'MIZO APK'}</div>
+        <div class="detail-cat">${app.category || 'Application'}</div>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-value" id="detail-views">0</div>
+        <div class="stat-label">Views</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="detail-likes">0</div>
+        <div class="stat-label">Likes</div>
+      </div>
+      ${app.size ? `<div class="stat-item"><div class="stat-value">${app.size}</div><div class="stat-label">Size</div></div>` : ''}
+      ${app.version ? `<div class="stat-item"><div class="stat-value">${app.version}</div><div class="stat-label">Version</div></div>` : ''}
+    </div>
+
+    <button class="btn-like ${isLiked ? 'liked' : ''}" id="like-btn-${id}" onclick="toggleLike('${id}')">
+      <svg viewBox="0 0 24 24" style="fill:${isLiked ? 'var(--primary)' : 'none'};stroke:var(--primary);stroke-width:2">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      </svg>
+      ${isLiked ? 'Liked' : 'Like this App'}
+    </button>
+
+    ${app.downloadUrl ? `<a class="btn-download" href="${app.downloadUrl}" target="_blank" download>
+      <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      Download APK
+    </a>` : `<button class="btn-download" style="background:var(--text-tertiary);cursor:not-allowed;">Not Available</button>`}
+
+    ${screenshots.length ? `
+    <div class="screenshots-section">
+      <h3>Screenshots</h3>
+      <div class="screenshots-row">
+        ${screenshots.map(s => `<img class="screenshot-img" src="${s}" alt="Screenshot" onerror="this.style.display='none'">`).join('')}
+      </div>
+    </div>` : ''}
+
+    ${app.description ? `<div class="detail-desc">${app.description}</div>` : ''}
+  `;
+
+  const overlay = document.getElementById('detail-overlay');
+  overlay.style.display = 'flex';
+  requestAnimationFrame(() => overlay.classList.add('open'));
+  document.getElementById('detail-scroll').scrollTop = 0;
+};
+
+window.closeDetail = () => {
+  const overlay = document.getElementById('detail-overlay');
+  overlay.classList.remove('open');
+  overlay.style.transform = 'translateY(100%)';
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    overlay.style.transform = '';
+  }, 350);
+};
+
+window.toggleLike = async (id) => {
+  if (!currentUser) return;
+  const uid = currentUser.uid;
+  const likeRef = ref(db, `userLikes/${uid}/${id}`);
+  const appLikesRef = ref(db, `apps/${id}/likes`);
+  const isLiked = likedApps.has(id);
+
+  if (isLiked) {
+    await set(likeRef, false);
+    likedApps.delete(id);
+    runTransaction(appLikesRef, (cur) => Math.max(0, (cur || 0) - 1));
+  } else {
+    await set(likeRef, true);
+    likedApps.add(id);
+    runTransaction(appLikesRef, (cur) => (cur || 0) + 1);
+    showToast('Added to your likes!');
+  }
+  // Update button
+  const btn = document.getElementById(`like-btn-${id}`);
+  if (btn) {
+    const nowLiked = likedApps.has(id);
+    btn.className = `btn-like ${nowLiked ? 'liked' : ''}`;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:${nowLiked?'var(--primary)':'none'};stroke:var(--primary);stroke-width:2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>${nowLiked ? 'Liked' : 'Like this App'}`;
+  }
+};
+
+// ===== NAVIGATION =====
+window.showScreen = (id) => {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+};
+
+window.navTo = (tab) => {
+  const map = { home: 'home-screen', search: 'search-screen', profile: 'profile-screen' };
+  showScreen(map[tab]);
+  if (tab === 'search') document.getElementById('search-input').focus();
+};
+
+window.filterHomeApps = (query) => {
+  const q = query.toLowerCase();
+  const filtered = Object.entries(allApps).filter(([, a]) => !q || (a.name||'').toLowerCase().includes(q) || (a.category||'').toLowerCase().includes(q));
+  renderAppGrid(filtered);
+};
+
+window.doSearch = (query) => renderSearchResults(query);
+
+// ===== HELPERS =====
+function formatNum(n) {
+  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+  return String(n);
+}
+
+window.showToast = (msg) => {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+};
+
+window.openTelegram = () => window.open('https://t.me/mizowebs', '_blank');
+window.openWhatsApp = () => window.open('https://wa.me/918798854711', '_blank');
+
+// Handle Android back gesture on detail overlay
+window.addEventListener('popstate', () => {
+  if (document.getElementById('detail-overlay').classList.contains('open')) closeDetail();
+});
+</script>
+</body>
+</html>
